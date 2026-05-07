@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "PACE Universal Video Speed Controller",
+  "version": "1.0.0",
+  "description": "Easily control the playback speed of any HTML5 video on the current page, including videos inside iframes.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "PACE Video Speed Controller",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "icon-fill-dark.png"
+    }
+  },
+  "icons": {
+    "128": "icon-fill-dark.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "pop.png",
+        "pop-light.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}

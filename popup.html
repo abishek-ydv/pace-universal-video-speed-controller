@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PACE Settings</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup">
+    <header class="header-card">
+      <div class="brand">
+        <div class="brand-icon">
+          <img id="heroLogo" src="icon-fill-dark.png" alt="PACE Logo">
+        </div>
+        <div class="brand-text">
+          <h1>PACE</h1>
+          <p>Control playback your way</p>
+        </div>
+      </div>
+      <button id="powerBtn" class="power-btn active" title="Toggle extension power" aria-label="Toggle extension power" aria-pressed="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+          <line x1="12" y1="2" x2="12" y2="12"></line>
+        </svg>
+      </button>
+    </header>
+
+    <section class="settings-group">
+      <div class="setting-item">
+        <div class="setting-copy">
+          <div class="setting-label">Remember Speed Per-Site</div>
+          <div class="setting-desc">Keep separate speed preferences per website.</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="usePerSiteSpeed">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-copy">
+          <div class="setting-label">Speed Step Size</div>
+          <div class="setting-desc">Amount changed by + and - controls.</div>
+        </div>
+        <select id="stepSize" class="setting-select">
+          <option value="0.05">0.05x</option>
+          <option value="0.1">0.10x</option>
+          <option value="0.25" selected>0.25x</option>
+          <option value="0.5">0.50x</option>
+          <option value="1">1.00x</option>
+        </select>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-copy">
+          <div class="setting-label">Default Reset Speed</div>
+          <div class="setting-desc">Speed used by reset actions.</div>
+        </div>
+        <select id="defaultSpeed" class="setting-select">
+          <option value="1">1.0x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2.0x</option>
+        </select>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-copy">
+          <div class="setting-label">Widget Position</div>
+          <div class="setting-desc">Lock current position or restore to default.</div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="restoreWidgetPosition" class="ghost-btn icon-btn" type="button" title="Restore Position">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          </button>
+          <label class="ghost-btn icon-btn" title="Lock Position" style="cursor: pointer; margin: 0;">
+            <input type="checkbox" id="widgetLocked" style="display: none;">
+            <svg class="icon-unlocked" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+            <svg class="icon-locked" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="shortcuts-info">
+      <h2>Keyboard Shortcuts</h2>
+      <div class="shortcuts-grid">
+        <code>[</code><span>Decrease speed</span>
+        <code>]</code><span>Increase speed</span>
+        <code>R</code><span>Reset speed</span>
+        <code>H</code><span>Toggle widget visibility</span>
+      </div>
+    </section>
+
+    <p id="status" class="status">Settings saved automatically.</p>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
