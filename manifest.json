@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "description": "Easily control the playback speed of any HTML5 video on the current page, including videos inside iframes.",
   "permissions": [
-    "storage"
+    "storage",
+    "activeTab"
   ],
   "host_permissions": [
     "<all_urls>"

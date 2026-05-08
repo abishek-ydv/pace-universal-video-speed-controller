@@ -26,15 +26,23 @@
     </header>
 
     <section class="settings-group">
-      <div class="setting-item">
-        <div class="setting-copy">
-          <div class="setting-label">Remember Speed Per-Site</div>
-          <div class="setting-desc">Keep separate speed preferences per website.</div>
+      <div class="setting-item stacked-setting expandable-setting">
+        <div class="setting-header-row">
+          <div class="setting-copy">
+            <div class="setting-label">Remember Speed Per-Site</div>
+            <div class="setting-desc">Keep separate speed preferences per website.</div>
+          </div>
+          <div class="setting-actions">
+            <label class="switch">
+              <input type="checkbox" id="usePerSiteSpeed">
+              <span class="slider"></span>
+            </label>
+            <button id="togglePerSiteSpeedsList" class="dropdown-toggle" type="button" aria-expanded="false" aria-label="Show saved per-site speeds" title="Show saved speeds" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </div>
         </div>
-        <label class="switch">
-          <input type="checkbox" id="usePerSiteSpeed">
-          <span class="slider"></span>
-        </label>
+        <div id="perSiteSpeedsList" class="site-list" hidden></div>
       </div>
 
       <div class="setting-item">
@@ -79,6 +87,28 @@
             <svg class="icon-locked" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           </label>
         </div>
+      </div>
+
+      <div class="setting-item stacked-setting expandable-setting">
+        <div class="setting-header-row">
+          <div class="setting-copy">
+            <div class="setting-label">Excluded Sites</div>
+            <div class="setting-desc">Excluded sites keep native speed and hide PACE.</div>
+          </div>
+          <button id="toggleExcludedSitesList" class="dropdown-toggle" type="button" aria-expanded="false" aria-label="Show excluded sites" title="Show excluded sites">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="current-site-row">
+          <div class="current-site-copy">
+            <span class="row-eyebrow">Current Site</span>
+            <span id="currentSiteLabel" class="site-chip">Detecting current site...</span>
+          </div>
+          <button id="toggleExcludeSite" class="icon-action-btn add-site-btn" type="button" aria-label="Exclude current site" title="Exclude current site">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          </button>
+        </div>
+        <div id="excludedSitesList" class="site-list" hidden></div>
       </div>
     </section>
 

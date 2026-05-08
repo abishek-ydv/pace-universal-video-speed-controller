@@ -70,7 +70,7 @@ function findVideosInNode(node) {
 
 function maybeEnforceVideo(v) {
     if (!v) return;
-    if (powerOn && typeof window.__ybmTargetSpeed === 'number' && v.playbackRate !== window.__ybmTargetSpeed) {
+    if (isControllerActive() && typeof window.__ybmTargetSpeed === 'number' && v.playbackRate !== window.__ybmTargetSpeed) {
         v.__ybmSettingSpeed = true;
         v.playbackRate = window.__ybmTargetSpeed;
         setTimeout(() => { v.__ybmSettingSpeed = false; }, 10);
@@ -81,7 +81,7 @@ function attachVideoHandlers(v) {
     if (!v || v.__ybmRateEnforcerAdded) return;
     v.__ybmRateEnforcerAdded = true;
     v.addEventListener('ratechange', () => {
-        if (!powerOn) return;
+        if (!isControllerActive()) return;
         if (v.playbackRate !== window.__ybmTargetSpeed && !v.__ybmSettingSpeed) {
             v.__ybmSettingSpeed = true;
             v.playbackRate = window.__ybmTargetSpeed;
@@ -99,7 +99,7 @@ function attachVideoHandlers(v) {
 
 function enforceSpeed(targetSpeed) {
     currentSpeed = targetSpeed;
-    window.__ybmTargetSpeed = powerOn ? targetSpeed : null;
+    window.__ybmTargetSpeed = isControllerActive() ? targetSpeed : null;
 
     const videos = findAllVideos();
     videos.forEach(v => {
@@ -112,7 +112,7 @@ function enforceSpeed(targetSpeed) {
         let pendingNodes = [];
         let scheduled = false;
         const observer = new MutationObserver((mutations) => {
-            if (!powerOn) return;
+            if (!isControllerActive()) return;
             mutations.forEach((mutation) => {
                 mutation.addedNodes.forEach((n) => pendingNodes.push(n));
             });
@@ -140,15 +140,43 @@ function enforceSpeed(targetSpeed) {
 let usePerSiteSpeed = false;
 let currentHostname = window.location.hostname;
 let powerOn = true;
+let siteExcluded = false;
+
+function normalizeHostname(hostname) {
+    return (hostname || '').toLowerCase();
+}
+
+function getExclusionHostCandidates() {
+    const candidates = [normalizeHostname(currentHostname)];
+    if (window !== window.top && document.referrer) {
+        try {
+            candidates.push(normalizeHostname(new URL(document.referrer).hostname));
+        } catch (error) {
+            // Ignore non-standard referrers.
+        }
+    }
+    return [...new Set(candidates.filter(Boolean))];
+}
+
+function isCurrentSiteExcluded(excludedSites) {
+    if (!Array.isArray(excludedSites)) return false;
+    const excluded = new Set(excludedSites.map(normalizeHostname));
+    return getExclusionHostCandidates().some((site) => excluded.has(site));
+}
+
+function isControllerActive() {
+    return powerOn && !siteExcluded;
+}
 
 function getSpeedKey() {
     return usePerSiteSpeed ? `siteSpeed_${currentHostname}` : 'lastSpeed';
 }
 
-chrome.storage.local.get(['usePerSiteSpeed', 'defaultSpeed', 'powerOn', 'enableWidget'], (data) => {
+chrome.storage.local.get(['usePerSiteSpeed', 'defaultSpeed', 'powerOn', 'enableWidget', 'excludedSites'], (data) => {
     usePerSiteSpeed = !!data.usePerSiteSpeed;
     powerOn = data.powerOn !== false;
     if (data.enableWidget === false && data.powerOn === undefined) powerOn = false; // migration
+    siteExcluded = isCurrentSiteExcluded(data.excludedSites);
     let defaultSpeed = data.defaultSpeed || 1.0;
     let key = getSpeedKey();
     chrome.storage.local.get([key], (d) => {
@@ -159,9 +187,10 @@ chrome.storage.local.get(['usePerSiteSpeed', 'defaultSpeed', 'powerOn', 'enableW
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
     if (namespace === 'local') {
-        if (changes.usePerSiteSpeed || changes.powerOn !== undefined) {
+        if (changes.usePerSiteSpeed || changes.powerOn !== undefined || changes.excludedSites !== undefined) {
             if (changes.usePerSiteSpeed) usePerSiteSpeed = changes.usePerSiteSpeed.newValue;
             if (changes.powerOn !== undefined) powerOn = changes.powerOn.newValue;
+            if (changes.excludedSites !== undefined) siteExcluded = isCurrentSiteExcluded(changes.excludedSites.newValue);
             let key = getSpeedKey();
             chrome.storage.local.get([key, 'defaultSpeed'], (d) => {
                 let sp = d[key] || d.defaultSpeed || 1.0;
@@ -223,23 +252,24 @@ if (window === window.top) {
 
         .wrapper {
             box-sizing: border-box;
-            background: #111827; /* --bg-secondary */
-            background-image: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)); /* --gradient-card */
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.12); /* --border-default */
+            background: rgba(17, 24, 39, 0.42);
+            background-image: linear-gradient(145deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
+            backdrop-filter: blur(18px) saturate(160%);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            border: 1px solid rgba(255,255,255,0.22);
             border-radius: 12px;
             color: #E5E7EB; /* --text-primary */
             display: flex;
             align-items: center;
             padding: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 12px 34px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.20);
             user-select: none;
             overflow: hidden;
             max-width: 280px;
             height: 40px;
             width: max-content;
             pointer-events: auto;
-            transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease, border-radius 0.3s ease;
+            transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease, border-color 0.3s ease, border-radius 0.3s ease, box-shadow 0.3s ease;
         }
 
         :host(.ybm-minimized) .wrapper {
@@ -247,15 +277,18 @@ if (window === window.top) {
             max-width: 40px;
             cursor: pointer;
             justify-content: center;
-            background: rgba(255,255,255,0.04); /* blurry mode */
-            border-radius: 8px;
+            background: rgba(17, 24, 39, 0.36);
+            background-image: linear-gradient(145deg, rgba(255,255,255,0.20), rgba(255,255,255,0.06));
+            border-color: rgba(255,255,255,0.24);
+            border-radius: 10px;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.22);
             transition: all 0.3s ease;
         }
 
         :host(.ybm-minimized) .wrapper:hover {
-            background: #1A2233; /* not blurry mode */
-            border-color: #3B48F2; /* --primary-500 */
-            box-shadow: 0 0 12px rgba(59,72,242,0.35); /* --glow-primary */
+            background: rgba(26, 34, 51, 0.54);
+            border-color: rgba(79,93,255,0.68);
+            box-shadow: 0 0 18px rgba(59,72,242,0.42), 0 12px 34px rgba(0,0,0,0.36), inset 0 1px 0 rgba(255,255,255,0.24);
         }
 
         :host(.ybm-locked) .wrapper {
@@ -280,7 +313,7 @@ if (window === window.top) {
         }
 
         .toggle-btn:hover {
-            background: rgba(255,255,255,0.04); /* --bg-glass */
+            background: rgba(255,255,255,0.10);
         }
         .toggle-btn:focus-visible {
             outline: 2px solid #4F5DFF; /* --primary-400 */
@@ -322,8 +355,8 @@ if (window === window.top) {
         }
 
         .speed-btn {
-            background: #1A2233; /* --bg-tertiary */
-            border: 1px solid rgba(255,255,255,0.06); /* --border-subtle */
+            background: rgba(26, 34, 51, 0.58);
+            border: 1px solid rgba(255,255,255,0.14);
             color: #E5E7EB; /* --text-primary */
             width: 28px;
             height: 28px;
@@ -338,8 +371,8 @@ if (window === window.top) {
         }
         
         .speed-btn:hover {
-            background: rgba(255,255,255,0.04); /* --bg-glass */
-            border-color: rgba(255,255,255,0.18); /* --border-strong */
+            background: rgba(255,255,255,0.10);
+            border-color: rgba(255,255,255,0.28);
         }
         .speed-btn:focus-visible {
             outline: 2px solid #4F5DFF; /* --primary-400 */
@@ -428,7 +461,7 @@ if (window === window.top) {
     }
 
     function showFloatingWidget() {
-        if (!isTopFrame || !powerOn || !document.body) return;
+        if (!isTopFrame || !isControllerActive() || !document.body) return;
         container.style.maxWidth = '';
         container.style.position = 'fixed';
         appendContainerTo(document.fullscreenElement || document.body);
@@ -499,7 +532,7 @@ if (window === window.top) {
     }
 
     window.tryShowUI = function () {
-        if (!powerOn) {
+        if (!isControllerActive()) {
             hideWidget();
             return;
         }
@@ -507,8 +540,11 @@ if (window === window.top) {
     };
 
     window.updateSettings = function (changes) {
-        if (changes.powerOn !== undefined) {
-            if (powerOn) {
+        if (changes.excludedSites !== undefined) {
+            siteExcluded = isCurrentSiteExcluded(changes.excludedSites.newValue);
+        }
+        if (changes.powerOn !== undefined || changes.excludedSites !== undefined) {
+            if (isControllerActive()) {
                 window.tryShowUI();
             } else {
                 hideWidget();
@@ -547,7 +583,7 @@ if (window === window.top) {
     let brieflyShowing = false;
 
     window.showSpeedBriefly = function (speed) {
-        if (!powerOn) return;
+        if (!isControllerActive()) return;
         if (!isTopFrame || !uiAdded) {
             return;
         }
@@ -737,7 +773,7 @@ if (window === window.top) {
 
     // Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
-        if (!powerOn || !uiAdded) return;
+        if (!isControllerActive() || !uiAdded) return;
         // Ignore if typing in an input or contenteditable element
         const tag = e.target.tagName;
         if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' ||
@@ -774,7 +810,7 @@ if (window === window.top) {
 
     // Handle Fullscreen - move the container into the fullscreen element so it stays visible
     document.addEventListener('fullscreenchange', () => {
-        if (!powerOn) return;
+        if (!isControllerActive()) return;
         if (!uiAdded || !isTopFrame) return;
         const fsElement = document.fullscreenElement;
         if (fsElement) {
