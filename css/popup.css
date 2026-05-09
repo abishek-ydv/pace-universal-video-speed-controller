@@ -16,6 +16,7 @@
   /* glass effect */
 
   /* 2. Surface Borders & Dividers */
+  --panel: var(--bg-secondary);
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-default: rgba(255, 255, 255, 0.12);
   --border-strong: rgba(255, 255, 255, 0.18);
@@ -68,9 +69,9 @@
   --glow-primary: rgba(59, 72, 242, 0.35);
   --glow-success: rgba(34, 197, 94, 0.35);
   --glow-danger: rgba(239, 68, 68, 0.35);
-  --scrollbar-track: rgba(11, 15, 23, 0.35);
-  --scrollbar-thumb: rgba(79, 93, 255, 0.58);
-  --scrollbar-thumb-hover: rgba(109, 123, 255, 0.78);
+
+  --scrollbar-accent: #222d45;
+
 }
 
 body {
@@ -80,26 +81,37 @@ body {
   font-family: "Inter", "Segoe UI", Arial, sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
+
+
+/* Minimal Scrollbar Styling */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
-  border-radius: 999px;
+  background: var(--scrollbar-accent);
+  border-radius: 10px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover);
+:hover::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-400);
+  border-radius: 10px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-accent) transparent;
+}
+
+*:hover {
+  scrollbar-color: var(--primary-300) transparent;
 }
 
 .popup {
@@ -167,7 +179,7 @@ body {
 
 .power-btn.active {
   color: var(--primary-50);
-  border-color: var(--primary-500);
+  border-color: var(--primary-300);
   background: var(--bg-tertiary);
   box-shadow: 0 0 12px var(--glow-primary);
 }
@@ -326,7 +338,7 @@ body {
   padding-top: 0;
 }
 
-.site-row + .site-row {
+.site-row+.site-row {
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -420,6 +432,7 @@ body {
   font-size: 11.5px;
   padding: 2px 0 0;
 }
+
 .setting-copy {
   flex: 1;
   min-width: 0;
@@ -473,8 +486,8 @@ body {
 }
 
 input:checked+.slider {
-  background: var(--primary-500);
-  border-color: var(--primary-500);
+  background: var(--primary-300);
+  border-color: var(--primary-300);
   box-shadow: 0 0 10px var(--glow-primary);
 }
 
@@ -605,9 +618,6 @@ body.light-theme {
   --text-disabled: #9CA3AF;
 
   --gradient-card: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4));
-  --scrollbar-track: rgba(229, 231, 235, 0.85);
-  --scrollbar-thumb: rgba(79, 93, 255, 0.52);
-  --scrollbar-thumb-hover: rgba(59, 72, 242, 0.72);
 }
 
 body.light-theme .setting-select {
@@ -615,6 +625,31 @@ body.light-theme .setting-select {
 }
 
 body.light-theme .power-btn.active {
-  color: var(--primary-500);
+  color: var(--primary-300);
   background: var(--bg-secondary);
+}
+
+body.light-theme .site-chip,
+body.light-theme .site-row strong,
+body.light-theme .speed-pill {
+  color: var(--primary-600);
+}
+
+body.light-theme .add-site-btn {
+  color: var(--primary-600);
+  border-color: rgba(46, 56, 197, 0.34);
+}
+
+body.light-theme .add-site-btn:hover {
+  color: var(--primary-700);
+  border-color: rgba(46, 56, 197, 0.62);
+}
+
+body.light-theme .slider:before {
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+body.light-theme input:checked+.slider:before {
+  background: #FFFFFF;
 }

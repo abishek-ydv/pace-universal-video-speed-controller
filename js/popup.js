@@ -49,10 +49,10 @@ function applySystemTheme() {
   const logo = document.getElementById('heroLogo');
   if (isLight) {
     document.body.classList.add('light-theme');
-    if (logo) logo.src = 'icon-fill-light.png';
+    if (logo) logo.src = '../assets/icon-fill-light.png';
   } else {
     document.body.classList.remove('light-theme');
-    if (logo) logo.src = 'icon-fill-dark.png';
+    if (logo) logo.src = '../assets/icon-fill-dark.png';
   }
 }
 

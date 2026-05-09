@@ -325,7 +325,7 @@ if (window === window.top) {
             height: 18px;
             object-fit: contain;
             pointer-events: none;
-            content: url("${chrome.runtime.getURL('pop-light.png')}");
+            content: url("${chrome.runtime.getURL('assets/pop-light.png')}");
             filter: drop-shadow(0 0 3px rgba(0,0,0,0.5));
             transition: all 0.2s ease;
         }
